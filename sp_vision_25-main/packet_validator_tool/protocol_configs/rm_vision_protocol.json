@@ -1,0 +1,92 @@
+{
+  "protocol_name": "RM视觉通信协议",
+  "description": "RoboMaster视觉系统上下位机通信协议",
+  "frame_header": "0xA5",
+  "byte_order": "little",
+
+  "fields": [
+    {
+      "name": "帧头SOF",
+      "size": 1,
+      "type": "uint8",
+      "description": "起始标志(0xA5)",
+      "validation": {
+        "type": "fixed_value",
+        "value": 165
+      }
+    },
+    {
+      "name": "数据长度",
+      "size": 2,
+      "type": "uint16",
+      "description": "数据段长度"
+    },
+    {
+      "name": "序列号",
+      "size": 1,
+      "type": "uint8",
+      "description": "包序号"
+    },
+    {
+      "name": "CRC8",
+      "size": 1,
+      "type": "uint8",
+      "description": "包头CRC8校验",
+      "validation": {
+        "type": "crc8",
+        "range": [0, 4]
+      }
+    },
+    {
+      "name": "命令ID",
+      "size": 2,
+      "type": "uint16",
+      "description": "命令类型"
+    },
+    {
+      "name": "Yaw角度",
+      "size": 4,
+      "type": "float",
+      "description": "偏航角"
+    },
+    {
+      "name": "Pitch角度",
+      "size": 4,
+      "type": "float",
+      "description": "俯仰角"
+    },
+    {
+      "name": "距离",
+      "size": 4,
+      "type": "float",
+      "description": "目标距离"
+    },
+    {
+      "name": "标志位",
+      "size": 1,
+      "type": "uint8",
+      "description": "控制标志"
+    },
+    {
+      "name": "CRC16",
+      "size": 2,
+      "type": "uint16",
+      "description": "整包CRC16校验",
+      "validation": {
+        "type": "crc16",
+        "range": [0, -1]
+      }
+    }
+  ],
+
+  "simulator": {
+    "enabled": true,
+    "generate_rules": {
+      "帧头SOF": "fixed:0xA5",
+      "序列号": "counter",
+      "Yaw角度": "formula:counter*0.1",
+      "Pitch角度": "formula:counter*0.05",
+      "距离": "random:0.5-10.0"
+    }
+  }
+}

@@ -1,0 +1,113 @@
+# SP Vision 通信协议配置文件
+# 用于SP视觉系统数据包验证
+
+# 协议基本信息
+protocol_name: "SP Vision通信协议"
+description: "SP视觉系统数据包协议，包含模式、四元数姿态、角度速度和弹速信息"
+frame_header: "0x5350"  # 'SP' = 0x53 0x50
+byte_order: "little"    # 字节序：小端
+
+# 数据包字段定义
+fields:
+  # 帧头部分（2字节）
+  - name: "帧头S"
+    size: 1
+    type: "uint8"
+    description: "起始标志'S'(0x53)"
+    validation:
+      type: "fixed_value"
+      value: 83  # 'S' = 0x53 = 83
+
+  - name: "帧头P"
+    size: 1
+    type: "uint8"
+    description: "起始标志'P'(0x50)"
+    validation:
+      type: "fixed_value"
+      value: 80  # 'P' = 0x50 = 80
+
+  # 模式字段（1字节）
+  - name: "模式"
+    size: 1
+    type: "uint8"
+    description: "工作模式(0:空闲 1:自瞄 2:小符 3:大符)"
+
+  # 四元数（16字节）
+  - name: "q[0](w)"
+    size: 4
+    type: "float"
+    description: "四元数w分量"
+
+  - name: "q[1](x)"
+    size: 4
+    type: "float"
+    description: "四元数x分量"
+
+  - name: "q[2](y)"
+    size: 4
+    type: "float"
+    description: "四元数y分量"
+
+  - name: "q[3](z)"
+    size: 4
+    type: "float"
+    description: "四元数z分量"
+
+  # 角度和角速度（16字节）
+  - name: "yaw"
+    size: 4
+    type: "float"
+    description: "偏航角(度)"
+
+  - name: "yaw_vel"
+    size: 4
+    type: "float"
+    description: "偏航角速度(度/秒)"
+
+  - name: "pitch"
+    size: 4
+    type: "float"
+    description: "俯仰角(度)"
+
+  - name: "pitch_vel"
+    size: 4
+    type: "float"
+    description: "俯仰角速度(度/秒)"
+
+  # 弹速和计数（6字节）
+  - name: "bullet_speed"
+    size: 4
+    type: "float"
+    description: "弹丸速度(m/s)"
+
+  - name: "bullet_count"
+    size: 2
+    type: "uint16"
+    description: "子弹累计发送次数"
+
+  # CRC16校验（2字节）
+  - name: "CRC16"
+    size: 2
+    type: "uint16"
+    description: "整包CRC16校验"
+    validation:
+      type: "crc16"
+      range: [0, -1]  # 校验从第0字节到CRC16之前的所有数据（41字节）
+
+# 模拟器配置
+simulator:
+  enabled: true
+  generate_rules:
+    "帧头S": "fixed:0x53"                      # 固定值'S'
+    "帧头P": "fixed:0x50"                      # 固定值'P'
+    "模式": "random:0-3"                        # 随机模式0-3
+    "q[0](w)": "formula:cos(counter*0.05)"     # 四元数w分量（模拟旋转）
+    "q[1](x)": "formula:sin(counter*0.05)*0.5" # 四元数x分量
+    "q[2](y)": "formula:sin(counter*0.05)*0.3" # 四元数y分量
+    "q[3](z)": "formula:cos(counter*0.05)*0.2" # 四元数z分量
+    "yaw": "formula:counter*0.5"               # yaw角度递增
+    "yaw_vel": "formula:(counter%100-50)*1.0"  # yaw角速度-50到50
+    "pitch": "formula:counter*0.3"             # pitch角度递增
+    "pitch_vel": "formula:(counter%60-30)*1.0" # pitch角速度-30到30
+    "bullet_speed": "random:10.0-30.0"         # 弹速10-30 m/s
+    "bullet_count": "counter"                  # 递增计数器

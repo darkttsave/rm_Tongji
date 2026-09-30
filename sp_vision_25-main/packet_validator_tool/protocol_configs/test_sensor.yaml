@@ -1,0 +1,32 @@
+# 测试传感器协议
+protocol_name: "测试传感器"
+description: "用于测试配置编辑器的简单协议"
+byte_order: little
+
+fields:
+  - name: "帧头"
+    size: 1
+    type: uint8
+    description: "起始标志"
+    validation:
+      type: fixed_value
+      value: 255
+
+  - name: "温度"
+    size: 2
+    type: int16
+    description: "温度值(℃*10)"
+
+  - name: "校验和"
+    size: 1
+    type: uint8
+    description: "简单校验和"
+    validation:
+      type: checksum
+      range: [0, -1]
+
+simulator:
+  enabled: true
+  generate_rules:
+    帧头: "fixed:0xFF"
+    温度: "random:200-300"

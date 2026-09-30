@@ -1,0 +1,57 @@
+{
+  "protocol_name": "简单传感器协议",
+  "description": "温度湿度传感器数据协议",
+  "frame_header": "0xAA",
+  "byte_order": "little",
+
+  "fields": [
+    {
+      "name": "帧头",
+      "size": 1,
+      "type": "uint8",
+      "description": "起始标志(0xAA)",
+      "validation": {
+        "type": "fixed_value",
+        "value": 170
+      }
+    },
+    {
+      "name": "设备ID",
+      "size": 1,
+      "type": "uint8",
+      "description": "设备编号"
+    },
+    {
+      "name": "温度",
+      "size": 2,
+      "type": "uint16",
+      "description": "温度值(0.1°C精度)"
+    },
+    {
+      "name": "湿度",
+      "size": 2,
+      "type": "uint16",
+      "description": "湿度值(0.1%精度)"
+    },
+    {
+      "name": "校验和",
+      "size": 1,
+      "type": "uint8",
+      "description": "简单累加校验",
+      "validation": {
+        "type": "checksum",
+        "range": [0, 6]
+      }
+    }
+  ],
+
+  "simulator": {
+    "enabled": true,
+    "generate_rules": {
+      "帧头": "fixed:0xAA",
+      "设备ID": "fixed:0x01",
+      "温度": "random:200-300",
+      "湿度": "random:400-800"
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "network": {
+    "host": "127.0.0.1",
+    "port": 9870,
+    "buffer_size": 4096
+  },
+  "display": {
+    "window_title": "RoboMaster 视觉监控",
+    "update_interval_ms": 50,
+    "history_length": 500,
+    "figure_size": [16, 10]
+  },
+  "data_fields": {
+    "robot_state": [
+      "yaw",
+      "pitch",
+      "shoot",
+      "control",
+      "bullet_speed"
+    ],
+    "target_state": [
+      "target_x",
+      "target_y",
+      "target_z",
+      "target_vx",
+      "target_vy",
+      "target_vz",
+      "target_yaw",
+      "target_yaw_velocity",
+      "armor_type",
+      "armor_name",
+      "distance"
+    ]
+  },
+  "comments": {
+    "说明": "监控系统配置文件",
+    "网络配置": "UDP接收地址和端口",
+    "显示配置": "窗口和图表相关设置",
+    "数据字段": "从JSON中提取的字段名称，需要与C++发送的数据匹配"
+  }
+}
