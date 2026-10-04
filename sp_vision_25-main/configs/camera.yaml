@@ -4,6 +4,10 @@
 # vid_pid: "f622:d13a"
 
 camera_name: "hikrobot"
-exposure_ms: 3
+exposure_ms: 15
 gain: 10.0
 vid_pid: "2bdf:0001"
+
+# Gimbal serial port configuration
+com_port: "/dev/ttyACM0"
+baudrate: 115200
