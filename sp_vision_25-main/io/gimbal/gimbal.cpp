@@ -11,10 +11,11 @@ Gimbal::Gimbal(const std::string & config_path)
 {
   auto yaml = tools::load(config_path);
   auto com_port = tools::read<std::string>(yaml, "com_port");
+  auto baudrate = tools::read<int>(yaml, "baudrate");
 
   try {
     serial_.setPort(com_port);
-    serial_.setBaudrate(115200);  // 设置波特率为 115200
+    serial_.setBaudrate(baudrate);
     serial::Timeout timeout = serial::Timeout::simpleTimeout(100);  // 100ms 超时
     serial_.setTimeout(timeout);
     serial_.open();
@@ -143,15 +144,18 @@ void Gimbal::read_thread()
       continue;
     }
 
-    if (!read(reinterpret_cast<uint8_t *>(&rx_data_), sizeof(rx_data_.head))) {
+    // 逐字节寻找 0x5A 帧头
+    uint8_t b;
+    if (!read(&b, 1)) {
       error_count++;
       continue;
     }
+    if (b != 0x5A) continue;
 
-    if (rx_data_.head[0] != 'S' || rx_data_.head[1] != 'P') continue;
-
+    rx_data_.head = 0x5A;
     auto t = std::chrono::steady_clock::now();
 
+    // 读取剩余数据
     if (!read(
           reinterpret_cast<uint8_t *>(&rx_data_) + sizeof(rx_data_.head),
           sizeof(rx_data_) - sizeof(rx_data_.head))) {
@@ -165,7 +169,13 @@ void Gimbal::read_thread()
     }
 
     error_count = 0;
-    Eigen::Quaterniond q(rx_data_.q[0], rx_data_.q[1], rx_data_.q[2], rx_data_.q[3]);
+
+    // 从 RPY 重建四元数 (ZYX 顺序: yaw -> pitch -> roll)
+    Eigen::Quaterniond q =
+      Eigen::AngleAxisd(rx_data_.yaw, Eigen::Vector3d::UnitZ()) *
+      Eigen::AngleAxisd(rx_data_.pitch, Eigen::Vector3d::UnitY()) *
+      Eigen::AngleAxisd(rx_data_.q[0], Eigen::Vector3d::UnitX());
+
     queue_.push({q, t});
 
     std::lock_guard<std::mutex> lock(mutex_);
