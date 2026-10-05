@@ -1,16 +1,27 @@
-pattern_cols: 10
+pattern_cols: 7
 pattern_rows: 7
-center_distance_mm: 40
+center_distance_mm: 15
 
 R_gimbal2imubody: [1, 0, 0, 0, 1, 0,  0, 0, 1]
 
 camera_name: "hikrobot"
-exposure_ms: 3
+exposure_ms: 8
 gain: 10.0
 vid_pid: "2bdf:0001"
 
-#####-----cboard参数-----#####
-quaternion_canid: 0x01
-bullet_speed_canid: 0x110
-send_canid: 0xff
-can_interface: "can0"
+# 重投影误差: 0.3145px（来源 standard4.yaml，同相机 hikrobot / vid_pid 2bdf:0001）
+camera_matrix: [2412.8410330856691, 0, 724.02650872084621, 0, 2412.0961569704896, 563.9481193226045, 0, 0, 1]
+distort_coeffs: [-0.030517930083123486, 0.13056173254457884, 0.00076663960143516204, 0.0010875495010853129, 0]
+
+R_camera2gimbal: [-0.013539664392602901, -0.07400334304926913, 0.9971660757896188, -0.99979032566230208, -0.014319032884647864, -0.014637964657568878, 0.015361712150784088, -0.99715518878195708, -0.073793951547643122]
+t_camera2gimbal: [0.15397598408609589, 0.095818705904286913, -0.013843446914387169]
+
+#####-----gimbal参数-----#####
+com_port: "/dev/ttyACM0"
+baudrate: 115200
+
+#####-----handeye_test-----#####
+height: 0.45       # 云台坐标原点距地面的高度，单位 m，按实车测量
+grid_num: 10       # 地面投影网格数量
+grid_size: 0.2     # 网格间距，单位 m
+delay: 0           # 姿态时间补偿，单位 ms，先设 0
