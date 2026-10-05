@@ -48,6 +48,8 @@ void CommandGener::generate_command()
     }
     if (input) {
       auto command = aimer_.aim(input->targets_, input->t, input->bullet_speed);
+      if (command.control)
+        command.yaw = gimbal_.state().yaw + tools::limit_rad(command.yaw - gimbal_.state().yaw);
       command.shoot = shooter_.shoot(command, aimer_, input->targets_, input->gimbal_pos);
       command.horizon_distance = input->targets_.empty()
                                    ? 0
