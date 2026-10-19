@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.16.3)
 
 project(sp_vision)
 
+option(SP_VISION_SIM_ONLY "Build only the ROS2 simulator target and its dependencies" OFF)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_BUILD_TYPE Release)
 message(STATUS "--------------------CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}--------------------")
@@ -12,7 +14,12 @@ find_package(Eigen3 REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(nlohmann_json REQUIRED)
-set(OpenVINO_DIR "/opt/intel/openvino_2024.6.0/runtime/cmake/")
+if(DEFINED nlohmann_json_INCLUDE_DIRS)
+  include_directories(${nlohmann_json_INCLUDE_DIRS})
+endif()
+if(NOT DEFINED OpenVINO_DIR)
+  set(OpenVINO_DIR "/opt/intel/openvino_2024.6.0/runtime/cmake/")
+endif()
 find_package(OpenVINO REQUIRED)
 
 include_directories(${EIGEN3_INCLUDE_DIR})
@@ -23,9 +30,12 @@ include_directories(${PROJECT_SOURCE_DIR})
 add_subdirectory(tools)
 add_subdirectory(io)
 add_subdirectory(tasks/auto_aim)
-add_subdirectory(tasks/auto_buff)
-add_subdirectory(tasks/omniperception)
+if(NOT SP_VISION_SIM_ONLY)
+  add_subdirectory(tasks/auto_buff)
+  add_subdirectory(tasks/omniperception)
+endif()
 
+if(NOT SP_VISION_SIM_ONLY)
 ####################src###################
 add_executable(standard src/standard.cpp)
 add_executable(mt_standard src/mt_standard.cpp)
@@ -46,7 +56,10 @@ target_link_libraries(auto_buff_debug ${OpenCV_LIBS} fmt::fmt yaml-cpp auto_buff
 target_link_libraries(auto_buff_debug_mpc ${OpenCV_LIBS} fmt::fmt yaml-cpp auto_buff tools io ${CERES_LIBRARIES})
 target_link_libraries(uav ${OpenCV_LIBS} fmt::fmt yaml-cpp auto_aim auto_buff tools io)
 target_link_libraries(uav_debug ${OpenCV_LIBS} fmt::fmt yaml-cpp auto_aim tools io)
+endif()
 
+
+if(NOT SP_VISION_SIM_ONLY)
 ##################calibration################
 add_executable(capture calibration/capture.cpp)
 add_executable(calibrate_camera calibration/calibrate_camera.cpp)
@@ -59,7 +72,10 @@ target_link_libraries(calibrate_camera ${OpenCV_LIBS} fmt::fmt yaml-cpp tools)
 target_link_libraries(calibrate_handeye ${OpenCV_LIBS} fmt::fmt yaml-cpp tools)
 target_link_libraries(calibrate_robotworld_handeye ${OpenCV_LIBS} fmt::fmt yaml-cpp tools)
 target_link_libraries(split_video ${OpenCV_LIBS} fmt::fmt tools)
+endif()
 
+
+if(NOT SP_VISION_SIM_ONLY)
 ##################tests##################
 add_executable(auto_aim_test tests/auto_aim_test.cpp)
 add_executable(auto_buff_test tests/auto_buff_test.cpp)
@@ -76,7 +92,6 @@ add_executable(usbcamera_test tests/usbcamera_test.cpp)
 add_executable(handeye_test tests/handeye_test.cpp)
 add_executable(dm_test tests/dm_test.cpp)
 add_executable(minimum_vision_system tests/minimum_vision_system.cpp)
-add_executable(detect_and_solve_test tests/detect_and_solve_test.cpp)
 
 target_link_libraries(auto_aim_test ${OpenCV_LIBS} fmt::fmt yaml-cpp tools io auto_aim)
 target_link_libraries(auto_buff_test ${OpenCV_LIBS} fmt::fmt yaml-cpp auto_buff tools io)
@@ -93,7 +108,6 @@ target_link_libraries(usbcamera_test ${OpenCV_LIBS} fmt::fmt yaml-cpp tools io)
 target_link_libraries(handeye_test ${OpenCV_LIBS} fmt::fmt yaml-cpp tools io auto_aim)
 target_link_libraries(dm_test ${OpenCV_LIBS} fmt::fmt yaml-cpp tools io)
 target_link_libraries(minimum_vision_system ${OpenCV_LIBS} fmt::fmt yaml-cpp tools io auto_aim)
-target_link_libraries(detect_and_solve_test ${OpenCV_LIBS} fmt::fmt yaml-cpp tools io auto_aim)
 
 add_executable(gimbal_test tests/gimbal_test.cpp)
 target_link_libraries(gimbal_test ${OpenCV_LIBS} fmt::fmt yaml-cpp auto_aim tools io)
@@ -103,6 +117,25 @@ target_link_libraries(planner_test ${OpenCV_LIBS} fmt::fmt yaml-cpp auto_aim too
 
 add_executable(planner_test_offline tests/planner_test_offline.cpp)
 target_link_libraries(planner_test_offline ${OpenCV_LIBS} fmt::fmt yaml-cpp auto_aim tools io)
+endif()
+
+
+# ROS2 simulator target (needs rclcpp/sensor_msgs/rm_interfaces and the local ros2_sim_io target)
+find_package(ament_cmake QUIET)
+find_package(rclcpp QUIET)
+find_package(sensor_msgs QUIET)
+find_package(rm_interfaces QUIET)
+find_package(tf2_msgs QUIET)
+find_package(geometry_msgs QUIET)
+find_package(tf2_ros QUIET)
+find_package(tf2 QUIET)
+if(ament_cmake_FOUND AND rclcpp_FOUND AND sensor_msgs_FOUND AND rm_interfaces_FOUND AND tf2_msgs_FOUND AND geometry_msgs_FOUND AND tf2_ros_FOUND AND tf2_FOUND AND TARGET ros2_sim_io)
+  add_executable(ros2_standard src/ros2_standard.cpp)
+  target_link_libraries(ros2_standard ${OpenCV_LIBS} fmt::fmt yaml-cpp auto_aim tools ros2_sim_io)
+  ament_target_dependencies(ros2_standard rclcpp sensor_msgs rm_interfaces tf2_msgs geometry_msgs tf2_ros tf2)
+else()
+  message(STATUS "ros2_standard not built: missing ROS2 deps or ros2_sim_io")
+endif()
 
 # 检查 ROS 环境
 find_package(ament_cmake QUIET)

@@ -37,6 +37,29 @@ endif()
 
 target_link_libraries(io MvCameraControl MVSDK usb-1.0 yaml-cpp serial)
 
+################## ROS2 simulator IO ##################
+find_package(ament_cmake QUIET)
+find_package(rclcpp QUIET)
+find_package(sensor_msgs QUIET)
+find_package(rm_interfaces QUIET)
+find_package(tf2_msgs QUIET)
+find_package(geometry_msgs QUIET)
+find_package(tf2_ros QUIET)
+find_package(tf2 QUIET)
+
+if(ament_cmake_FOUND AND rclcpp_FOUND AND sensor_msgs_FOUND AND rm_interfaces_FOUND AND tf2_msgs_FOUND AND geometry_msgs_FOUND AND tf2_ros_FOUND AND tf2_FOUND)
+  add_library(ros2_sim_io STATIC
+      ros2/ros_camera.cpp
+      ros2/ros_gimbal.cpp
+  )
+  target_include_directories(ros2_sim_io PUBLIC ${PROJECT_SOURCE_DIR})
+  target_link_libraries(ros2_sim_io yaml-cpp ${OpenCV_LIBS})
+  ament_target_dependencies(ros2_sim_io rclcpp sensor_msgs rm_interfaces tf2_msgs geometry_msgs tf2_ros tf2)
+  message(STATUS "ROS2 simulator IO enabled (ros2_sim_io)")
+else()
+  message(STATUS "ROS2 simulator IO disabled: rclcpp/sensor_msgs/rm_interfaces not found")
+endif()
+
 ################## 检查 ROS 环境 ##################
 find_package(ament_cmake QUIET)
 find_package(rclcpp QUIET)
