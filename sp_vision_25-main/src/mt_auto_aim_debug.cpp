@@ -61,6 +61,7 @@ int main(int argc, char * argv[])
 
   auto mode = io::GimbalMode::IDLE;
   auto last_mode = io::GimbalMode::IDLE;
+  bool display = true;  // 无 X11 显示时自动降级为 headless
 
   while (!exiter.exit()) {
     auto t0 = std::chrono::steady_clock::now();
@@ -161,10 +162,16 @@ int main(int argc, char * argv[])
 
     plotter.plot(data);
 
-    cv::resize(img, img, {}, 0.5, 0.5);  // 显示时缩小图片尺寸
-    cv::imshow("reprojection", img);
-    auto key = cv::waitKey(1);
-    if (key == 'q') break;
+    if (display) {
+      try {
+        cv::resize(img, img, {}, 0.5, 0.5);  // 显示时缩小图片尺寸
+        cv::imshow("reprojection", img);
+        if (cv::waitKey(1) == 'q') break;
+      } catch (const cv::Exception & e) {
+        display = false;
+        tools::logger()->warn("[main] no display, switch to headless: {}", e.what());
+      }
+    }
   }
 
   detect_thread.join();
