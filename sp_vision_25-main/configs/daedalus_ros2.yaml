@@ -1,0 +1,113 @@
+enemy_color: "blue"  # Daedalus 场景中敌方为蓝方
+
+#####-----神经网络参数-----#####
+yolo_name: yolov5
+classify_model: assets/tiny_resnet.onnx
+yolo11_model_path: assets/yolo11.xml
+yolov8_model_path: assets/yolov8.xml
+yolov5_model_path: assets/yolov5.xml
+device: CPU
+min_confidence: 0.8
+use_traditional: true
+
+#####-----ROI-----#####
+roi: 
+  x: 420
+  y: 50
+  width: 600
+  height: 600
+
+use_roi: false
+
+#####-----传统方法参数-----#####
+threshold: 150
+max_angle_error: 45 # degree
+min_lightbar_ratio: 1.5
+max_lightbar_ratio: 20
+min_lightbar_length: 8
+min_armor_ratio: 1
+max_armor_ratio: 5
+max_side_ratio: 1.5
+max_rectangular_error: 25 # degree
+
+#####-----tracker参数-----#####
+min_detect_count: 5
+max_temp_lost_count: 15
+outpost_max_temp_lost_count: 75
+
+#####-----aimer参数-----#####
+yaw_offset: 0 # degree -2.5
+pitch_offset: 0 # degree 2
+comming_angle: 55 # degree
+leaving_angle: 20 # degree
+decision_speed: 7 # rad/s
+high_speed_delay_time: 0.0 # s
+low_speed_delay_time: 0.0 # s planner use this value
+
+#####-----shooter参数-----#####
+first_tolerance: 3 # 近距离射击容差，degree
+second_tolerance: 2 # 远距离射击容差，degree
+judge_distance: 2 #距离判断阈值
+auto_fire: false # 仿真禁止自动开火
+
+camera_name: "hikrobot"
+exposure_ms: 2.5
+gain: 16.9
+vid_pid: "2bdf:0001"
+
+#  1  0  0
+#  0  1  0
+#  0  0  1
+R_gimbal2imubody: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+
+# 重投影误差: 0.1820px
+camera_matrix: [1303.675283386667, 0, 720, 0, 1303.675283386667, 540, 0, 0, 1]
+distort_coeffs: [0, 0, 0, 0, 0]
+
+# 相机同理想情况的偏角: yaw1.44 pitch-7.28 roll0.96 degree
+# 标定板到世界坐标系原点的水平距离: 1.13 m
+# 标定板同竖直摆放时的偏角: yaw7.61 pitch13.92 roll-0.46 degree
+R_camera2gimbal: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+t_camera2gimbal: [0, 0, 0]
+
+#####-----cboard参数-----#####
+quaternion_canid: 0x100
+bullet_speed_canid: 0x101
+send_canid: 0xff
+can_interface: "can0"
+
+#####-----gimbal参数-----#####
+com_port: "/dev/gimbal"
+yaw_kp: 0
+yaw_kd: 0
+pitch_kp: 0
+pitch_kd: 0
+
+#####-----planner-----#####
+fire_thresh: 0.0035
+
+max_yaw_acc: 50
+Q_yaw: [9e6, 0]
+R_yaw: [1]
+
+max_pitch_acc: 100
+Q_pitch: [9e6, 0]
+R_pitch: [1]
+
+#####-----buff_detector参数-----#####
+model: "assets/yolo11_buff_int8.xml"
+
+#####-----buff_aimer参数-----#####
+fire_gap_time: 0.700   # s
+predict_time: 0.120     # s
+#####-----ROS2 仿真适配参数-----#####
+# 与 Daedalus 的 /tf 和 /rm_gimbal/cmd 约定一致：
+# q 取 map -> camera_optical_frame；相机光学系直接作为 Tongji 的 gimbal 系。
+# 不改动实车配置，本文件仅用于仿真。
+bullet_speed: 25.0
+ros2_parent_frame: "map"
+ros2_camera_frame: "camera_optical_frame"
+# 同济 Aimer 输出的 yaw 符号与 Daedalus 相反（实车下位机约定），在适配层翻转。
+ros2_yaw_sign: -1.0
+# 同济 pitch 向上为负，Daedalus 向上为正。
+ros2_pitch_sign: -1.0
