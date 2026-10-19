@@ -1,5 +1,5 @@
-# enemy_color: "red"
-enemy_color: "blue"
+enemy_color: "red"
+# enemy_color: "blue"
 
 #####-----神经网络参数-----#####
 yolo_name: yolov5
@@ -38,8 +38,8 @@ max_temp_lost_count: 15
 outpost_max_temp_lost_count: 75
 
 #####-----aimer参数-----#####
-yaw_offset: -2 # degree -2.5
-pitch_offset: 0 # degree 2
+yaw_offset: 1 # degree -2.5  右边- 左边+
+pitch_offset: 5.5 # degree 2   上+  下-
 comming_angle: 60 # degree
 leaving_angle: 20 # degree
 decision_speed: 8 # rad/s
@@ -52,8 +52,11 @@ second_tolerance: 2 # 远距离射击容差，degree
 judge_distance: 2 #距离判断阈值
 auto_fire: true # 是否由自瞄控制射击
 
+#####-----debug log-----#####
+log_aim: false # 是否输出 Aimer+Shooter 终端调试日志（每100ms + 开火/发弹事件）
+
 camera_name: "hikrobot"
-exposure_ms: 15
+exposure_ms: 6
 gain: 16
 vid_pid: "2bdf:0001"
 
@@ -68,7 +71,7 @@ camera_matrix: [2412.8410330856691, 0, 724.02650872084621, 0, 2412.0961569704896
 distort_coeffs: [-0.030517930083123486, 0.13056173254457884, 0.00076663960143516204, 0.0010875495010853129, 0]
 
 # 相机同理想情况的偏角: yaw-1.61 pitch-0.82 roll-0.61 degree
-R_camera2gimbal: [0.012677749543071874, -0.05027855083870178, 0.99865476616901172, -0.99943629031167858, -0.031686926874944406, 0.011092352016221671, 0.031086593164143677, -0.99823244086273921, -0.050651927255189445]
+R_camera2gimbal: [-0.013539664392602901, -0.07400334304926913, 0.9971660757896188, -0.99979032566230208, -0.014319032884647864, -0.014637964657568878, 0.015361712150784088, -0.99715518878195708, -0.073793951547643122]
 t_camera2gimbal: [0.13392043908386911, 0.083814678300799167, 0.0024113281705605569]
 
 #####-----cboard参数-----#####
@@ -84,11 +87,11 @@ baudrate: 115200
 #####-----planner-----#####
 fire_thresh: 0.003
 
-max_yaw_acc: 50
-Q_yaw: [9e6, 0]
+max_yaw_acc: 150               #50
+Q_yaw: [9e6, 0]     #9e6
 R_yaw: [1]
 
-max_pitch_acc: 100
+max_pitch_acc: 150              #100
 Q_pitch: [9e6,0]
 R_pitch: [1]
 
