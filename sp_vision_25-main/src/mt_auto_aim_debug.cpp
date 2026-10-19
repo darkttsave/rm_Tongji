@@ -42,12 +42,12 @@ int main(int argc, char * argv[])
   io::Gimbal gimbal(config_path);
   io::Camera camera(config_path);
 
-  auto_aim::multithread::MultiThreadDetector detector(config_path, true);
+  auto_aim::multithread::MultiThreadDetector detector(config_path, false);
   auto_aim::Solver solver(config_path);
   auto_aim::Tracker tracker(config_path, solver);
   auto_aim::Aimer aimer(config_path);
   auto_aim::Shooter shooter(config_path);
-  auto_aim::multithread::CommandGener commandgener(shooter, aimer, gimbal, plotter, true);
+  auto_aim::multithread::CommandGener commandgener(config_path, shooter, aimer, gimbal, plotter, true);
 
   auto detect_thread = std::thread([&]() {
     cv::Mat img;

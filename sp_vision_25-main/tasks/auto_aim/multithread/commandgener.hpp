@@ -19,8 +19,8 @@ class CommandGener
 {
 public:
   CommandGener(
-    auto_aim::Shooter & shooter, auto_aim::Aimer & aimer, io::Gimbal & gimbal,
-    tools::Plotter & plotter, bool debug = false);
+    const std::string & config_path, auto_aim::Shooter & shooter, auto_aim::Aimer & aimer,
+    io::Gimbal & gimbal, tools::Plotter & plotter, bool debug = false);
 
   ~CommandGener();
 
@@ -47,7 +47,7 @@ private:
   std::mutex mtx_;
   std::condition_variable cv_;
   std::thread thread_;
-  bool stop_, debug_;
+  bool stop_, debug_, log_aim_ = false;
 
   void generate_command();
 };

@@ -57,7 +57,7 @@ int main(int argc, char * argv[])
   auto_buff::BigTarget buff_big_target;
   auto_buff::Aimer buff_aimer(config_path);
 
-  auto_aim::multithread::CommandGener commandgener(shooter, aimer, gimbal, plotter);
+  auto_aim::multithread::CommandGener commandgener(config_path, shooter, aimer, gimbal, plotter);
 
   std::atomic<io::GimbalMode> mode{io::GimbalMode::IDLE};
   auto last_mode{io::GimbalMode::IDLE};
